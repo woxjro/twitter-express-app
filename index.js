@@ -22,7 +22,24 @@ const getTweets = (params) => {
   ) {
     if (error) throw error;
     console.log(tweets);
+    return tweets;
   });
+};
+
+const postTweet = (content) => {
+  client.post(
+    "statuses/update",
+    {
+      status: content,
+    },
+    function (error, tweet, response) {
+      if (!error) {
+        console.log(tweet);
+      } else {
+        console.log("error");
+      }
+    }
+  );
 };
 
 app.use(
@@ -32,13 +49,25 @@ app.use(
 );
 app.use(bodyParser.json());
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 app.get("/", function (req, res) {
-  getTweets(params);
-  res.send("Hello World!");
+  var tweets = getTweets(params);
+  res.send(new Date());
 });
 
 app.post("/api/post", (req, res) => {
   console.log(req.body);
+  const { tweet, date } = req.body;
+  postTweet(tweet);
+  res.send("done");
 });
 
 app.listen(8000, function () {
