@@ -1,20 +1,26 @@
-const TWITTER_API_CLIENT = require("./env");
+const TWITTER_API_CLIENTS = require("./env");
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 
 var Twitter = require("twitter");
 
-var client = new Twitter({
-  consumer_key: TWITTER_API_CLIENT.consumer_key,
-  consumer_secret: TWITTER_API_CLIENT.consumer_secret,
-  access_token_key: TWITTER_API_CLIENT.access_token_key,
-  access_token_secret: TWITTER_API_CLIENT.access_token_secret,
+const CLIENTS = [];
+TWITTER_API_CLIENTS.map((CLIENT) => {
+  CLIENTS.push(
+    new Twitter({
+      consumer_key: CLIENT.consumer_key,
+      consumer_secret: CLIENT.consumer_secret,
+      access_token_key: CLIENT.access_token_key,
+      access_token_secret: CLIENT.access_token_secret,
+      bearer_token: CLIENT.bearer_token,
+    })
+  );
 });
 
 var params = { screen_name: "nodejs" };
 
-const getTweets = (params) => {
+const getTweets = (client, params) => {
   client.get("statuses/user_timeline", params, function (
     error,
     tweets,
@@ -26,7 +32,7 @@ const getTweets = (params) => {
   });
 };
 
-const postTweet = (content) => {
+const postTweet = (client, content) => {
   client.post(
     "statuses/update",
     {
@@ -36,7 +42,7 @@ const postTweet = (content) => {
       if (!error) {
         console.log(tweet);
       } else {
-        console.log("error");
+        console.log(error);
       }
     }
   );
@@ -66,10 +72,14 @@ app.get("/", function (req, res) {
 app.post("/api/post", (req, res) => {
   console.log(req.body);
   const { tweet, date } = req.body;
-  postTweet(tweet);
+  postTweet(CLIENTS[2], tweet);
   res.send("done");
 });
 
 app.listen(8000, function () {
   console.log("Example app listening on port 8000!");
+  TWITTER_API_CLIENTS.map((client) => {
+    console.log(client);
+    console.log(CLIENTS);
+  });
 });
