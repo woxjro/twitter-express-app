@@ -69,17 +69,19 @@ app.get("/", function (req, res) {
   res.send(new Date());
 });
 
-app.post("/api/post", (req, res) => {
-  console.log(req.body);
+app.post("/api/post/:id", (req, res) => {
   const { tweet, date } = req.body;
-  postTweet(CLIENTS[2], tweet);
+  const { id } = req.params;
+  console.log({
+    id: id,
+    user_name: TWITTER_API_CLIENTS[id].user_name,
+    tweet: tweet,
+    date: date,
+  });
+  //postTweet(CLIENTS[id], tweet);
   res.send("done");
 });
 
 app.listen(8000, function () {
-  console.log("Example app listening on port 8000!");
-  TWITTER_API_CLIENTS.map((client) => {
-    console.log(client);
-    console.log(CLIENTS);
-  });
+  console.log("-----------------running------------------");
 });
